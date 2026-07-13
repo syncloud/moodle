@@ -25,11 +25,6 @@ local build(arch, test_ui) = [{
     },
     steps: [
         {
-            name: 'version',
-            image: 'debian:' + debian,
-            commands: ['echo $DRONE_BUILD_NUMBER > version'],
-        },
-        {
             name: 'nginx',
             image: 'nginx:' + nginx,
             commands: ['./nginx/build.sh'],
