@@ -1,0 +1,5 @@
+#!/bin/bash -e
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
+SCRIPT=$1
+shift
+sudo -H -E -u moodle ${DIR}/bin/php.sh ${DIR}/php/moodle/${SCRIPT} "$@"
