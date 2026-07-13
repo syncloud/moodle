@@ -120,7 +120,7 @@ local build(arch, test_ui) = [{
         },
     ],
     trigger: {
-        event: ['push', 'pull_request'],
+        event: ['push'],
     },
     services: [
         {
