@@ -112,10 +112,6 @@ func (i *Installer) Configure() error {
 		return err
 	}
 
-	if err := i.disableTours(); err != nil {
-		i.logger.Warn("cannot disable user tours", zap.Error(err))
-	}
-
 	err = i.DomainChange()
 	if err != nil {
 		return err
@@ -195,10 +191,6 @@ func (i *Installer) configureOidc() error {
 		}
 	}
 	return nil
-}
-
-func (i *Installer) disableTours() error {
-	return i.database.ExecuteDb(App, "UPDATE mdl_tool_usertours_tours SET enabled = 0")
 }
 
 func (i *Installer) DomainChange() error {

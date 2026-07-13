@@ -1,6 +1,7 @@
 import { test, expect, Page } from '@playwright/test'
 import { shoot } from '../helpers/screenshot'
 import { adminPassword } from '../helpers/auth'
+import { clickThroughTour } from '../helpers/nav'
 
 const username = 'admin'
 
@@ -26,6 +27,12 @@ test.describe.serial('moodle', () => {
     await page.locator('#loginbtn').click()
     await page.waitForURL((url) => !url.pathname.includes('/login/'), { timeout: 60_000 })
     await expect(page.locator('#page')).toBeVisible()
+  })
+
+  test('tour', async ({}, testInfo) => {
+    await expect(page.locator('[data-role="flexitour-step"]')).toBeVisible()
+    await shoot(page, testInfo, 'tour')
+    await clickThroughTour(page)
   })
 
   test('dashboard', async ({}, testInfo) => {
