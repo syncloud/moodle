@@ -10,3 +10,4 @@ CGO_ENABLED=0 go build -o ${BUILD_DIR}/meta/hooks/configure ./cmd/configure
 CGO_ENABLED=0 go build -o ${BUILD_DIR}/meta/hooks/pre-refresh ./cmd/pre-refresh
 CGO_ENABLED=0 go build -o ${BUILD_DIR}/meta/hooks/post-refresh ./cmd/post-refresh
 CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/cli ./cmd/cli
+CGO_ENABLED=0 go build -o ${BUILD_DIR}/bin/cron ./cmd/cron

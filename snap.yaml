@@ -29,7 +29,7 @@ apps:
     restart-delay: 10s
 
   cron:
-    command: bin/service.cron.sh
+    command: bin/cron
     user: moodle
     daemon: simple
     restart-condition: always
