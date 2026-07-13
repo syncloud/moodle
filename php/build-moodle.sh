@@ -16,6 +16,4 @@ wget https://github.com/moodle/moodle/archive/refs/tags/v${MOODLE_VERSION}.tar.g
 tar xf moodle.tar.gz
 mv moodle-${MOODLE_VERSION} ${BUILD_DIR}/moodle
 
-cat > ${BUILD_DIR}/moodle/config.php <<'PHP'
-<?php require(getenv('SNAP_DATA') . '/config/moodle/config.php');
-PHP
+cp ${DIR}/config.php ${BUILD_DIR}/moodle/config.php
