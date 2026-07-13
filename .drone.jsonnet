@@ -84,7 +84,7 @@ local build(arch, test_ui) = [{
         {
             name: 'test ' + distro,
             image: 'python:' + python,
-            commands: ['./test/ci-test.sh ' + distro],
+            commands: ['./test/ci-test.sh ' + distro + ' ' + arch],
         }
         for distro in distros
     ] + [
