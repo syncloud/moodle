@@ -64,7 +64,7 @@ func New(logger *zap.Logger) *Installer {
 }
 
 func (i *Installer) Install() error {
-	err := CreateUser(App)
+	err := linux.CreateUser(App)
 	if err != nil {
 		return err
 	}
@@ -236,7 +236,7 @@ func (i *Installer) StorageChange() error {
 		return err
 	}
 
-	return Chown(storageDir, App)
+	return linux.Chown(storageDir, App)
 }
 
 func (i *Installer) dataRoot(storageDir string) string {
@@ -290,7 +290,7 @@ func (i *Installer) UpdateConfigs() error {
 		return err
 	}
 
-	return Chown(i.dataDir, App)
+	return linux.Chown(i.dataDir, App)
 }
 
 func (i *Installer) BackupPreStop() error {
@@ -310,11 +310,11 @@ func (i *Installer) AccessChange() error {
 }
 
 func (i *Installer) FixPermissions() error {
-	err := Chown(i.dataDir, App)
+	err := linux.Chown(i.dataDir, App)
 	if err != nil {
 		return err
 	}
-	return Chown(i.commonDir, App)
+	return linux.Chown(i.commonDir, App)
 }
 
 func (i *Installer) getOrCreateAdminPassword() (string, error) {
