@@ -11,8 +11,10 @@ cp -r /lib ${BUILD_DIR}
 
 cd ${BUILD_DIR}/usr/bin
 rm -f mysqld mysql mysqldump
-for b in mariadbd mariadb mariadb-dump my_print_defaults resolveip; do
-  mv $b $b.bin
-done
+mv mariadbd mariadbd.bin
+mv mariadb mariadb.bin
+mv mariadb-dump mariadb-dump.bin
+mv my_print_defaults my_print_defaults.bin
+mv resolveip resolveip.bin
 
 cp ${DIR}/bin/* ${BUILD_DIR}/usr/bin
