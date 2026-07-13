@@ -8,6 +8,7 @@ local php = '8.3.9-fpm-bullseye';
 local mariadb = '11.4.12';
 local debian = 'bookworm-slim';
 local python = '3.12-slim-bookworm';
+local playwright = 'v1.48.2-jammy';
 local distro_default = 'bookworm';
 local distros = ['bookworm', 'buster'];
 
@@ -87,7 +88,18 @@ local build(arch, test_ui) = [{
             commands: ['./test/ci-test.sh ' + distro + ' ' + arch],
         }
         for distro in distros
-    ] + [
+    ] + (if test_ui then [
+        {
+            name: 'test-ui-desktop',
+            image: 'mcr.microsoft.com/playwright:' + playwright,
+            commands: ['./test/e2e/run.sh e2e-desktop desktop'],
+        },
+        {
+            name: 'test-ui-mobile',
+            image: 'mcr.microsoft.com/playwright:' + playwright,
+            commands: ['./test/e2e/run.sh e2e-mobile mobile'],
+        },
+    ] else []) + [
         {
             name: 'publish',
             image: 'syncloud/store-publisher:' + store_publisher,
@@ -143,4 +155,5 @@ local build(arch, test_ui) = [{
 }];
 
 build('amd64', true) +
-build('arm64', false)
+build('arm64', false) +
+build('arm', false)
