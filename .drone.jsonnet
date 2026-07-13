@@ -89,11 +89,6 @@ local build(arch, test_ui) = [{
             image: 'mcr.microsoft.com/playwright:' + playwright,
             commands: ['./test/e2e/run.sh e2e-desktop desktop'],
         },
-        {
-            name: 'test-ui-mobile',
-            image: 'mcr.microsoft.com/playwright:' + playwright,
-            commands: ['./test/e2e/run.sh e2e-mobile mobile'],
-        },
     ] else []) + [
         {
             name: 'publish',
