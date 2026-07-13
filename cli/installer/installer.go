@@ -107,6 +107,15 @@ func (i *Installer) Configure() error {
 		return err
 	}
 
+	err = i.configureOidc()
+	if err != nil {
+		return err
+	}
+
+	if err := i.disableTours(); err != nil {
+		i.logger.Warn("cannot disable user tours", zap.Error(err))
+	}
+
 	err = i.DomainChange()
 	if err != nil {
 		return err
@@ -145,11 +154,6 @@ func (i *Installer) Initialize() error {
 		return err
 	}
 
-	err = i.updateSettings()
-	if err != nil {
-		return err
-	}
-
 	return os.WriteFile(i.installFile, []byte("installed"), 0644)
 }
 
@@ -161,22 +165,28 @@ func (i *Installer) Upgrade() error {
 	return i.StorageChange()
 }
 
-func (i *Installer) updateSettings() error {
+func (i *Installer) configureOidc() error {
+	authUrl, err := i.platformClient.GetAppUrl("auth")
+	if err != nil {
+		return err
+	}
+
+	secret, err := i.platformClient.RegisterOIDCClient(App, "/auth/oidc/", false, "client_secret_basic")
+	if err != nil {
+		return err
+	}
+
 	cmds := [][]string{
-		{"--name=auth", "--set=ldap,manual"},
-		{"--component=auth_ldap", "--name=host_url", "--set=ldap://localhost"},
-		{"--component=auth_ldap", "--name=start_tls", "--set=0"},
-		{"--component=auth_ldap", "--name=ldap_version", "--set=3"},
-		{"--component=auth_ldap", "--name=user_type", "--set=rfc2307"},
-		{"--component=auth_ldap", "--name=bind_dn", "--set=dc=syncloud,dc=org"},
-		{"--component=auth_ldap", "--name=bind_pw", "--set=syncloud"},
-		{"--component=auth_ldap", "--name=contexts", "--set=ou=users,dc=syncloud,dc=org"},
-		{"--component=auth_ldap", "--name=search_sub", "--set=1"},
-		{"--component=auth_ldap", "--name=user_attribute", "--set=cn"},
-		{"--component=auth_ldap", "--name=objectclass", "--set=(objectClass=*)"},
-		{"--component=auth_ldap", "--name=field_map_email", "--set=mail"},
-		{"--component=auth_ldap", "--name=field_map_firstname", "--set=givenName"},
-		{"--component=auth_ldap", "--name=field_map_lastname", "--set=sn"},
+		{"--component=auth_oidc", "--name=idptype", "--set=3"},
+		{"--component=auth_oidc", "--name=clientid", "--set=" + App},
+		{"--component=auth_oidc", "--name=clientauthmethod", "--set=1"},
+		{"--component=auth_oidc", "--name=clientsecret", "--set=" + secret},
+		{"--component=auth_oidc", "--name=authendpoint", "--set=" + authUrl + "/api/oidc/authorization"},
+		{"--component=auth_oidc", "--name=tokenendpoint", "--set=" + authUrl + "/api/oidc/token"},
+		{"--component=auth_oidc", "--name=oidcscope", "--set=openid profile email"},
+		{"--component=auth_oidc", "--name=loginflow", "--set=authcode"},
+		{"--component=auth_oidc", "--name=opname", "--set=Syncloud"},
+		{"--name=auth", "--set=oidc,manual"},
 	}
 	for _, c := range cmds {
 		args := append([]string{"admin/cli/cfg.php"}, c...)
@@ -185,6 +195,10 @@ func (i *Installer) updateSettings() error {
 		}
 	}
 	return nil
+}
+
+func (i *Installer) disableTours() error {
+	return i.database.ExecuteDb(App, "UPDATE mdl_tool_usertours_tours SET enabled = 0")
 }
 
 func (i *Installer) DomainChange() error {

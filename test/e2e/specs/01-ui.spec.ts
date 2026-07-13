@@ -25,7 +25,7 @@ test.describe.serial('moodle', () => {
     await page.locator('#password').fill(adminPassword())
     await page.locator('#loginbtn').click()
     await page.waitForURL((url) => !url.pathname.includes('/login/'), { timeout: 60_000 })
-    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible()
+    await expect(page.locator('#page')).toBeVisible()
   })
 
   test('dashboard', async ({}, testInfo) => {

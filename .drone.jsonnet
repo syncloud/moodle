@@ -1,5 +1,6 @@
 local name = 'moodle';
 local version = '4.5.12';
+local auth_oidc = '4.5.7';
 local platform = '26.04.10';
 local store_publisher = 'stable-303';
 local go = '1.25';
@@ -42,7 +43,7 @@ local build(arch, test_ui) = [{
             image: 'php:' + php,
             commands: [
                 './php/build.sh',
-                './php/build-moodle.sh ' + version,
+                './php/build-moodle.sh ' + version + ' ' + auth_oidc,
             ],
         },
     ] + [
