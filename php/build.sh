@@ -36,7 +36,6 @@ apt-get install -y \
     libicu-dev \
     libmagickwand-dev \
     libbz2-dev \
-    libsodium-dev \
     libxslt1-dev \
     git \
     --no-install-recommends
@@ -77,9 +76,7 @@ docker-php-ext-install bcmath
 docker-php-ext-install pdo_mysql
 docker-php-ext-install mysqli
 docker-php-ext-install mbstring
-docker-php-ext-install sodium
 docker-php-ext-install xsl
-docker-php-ext-install soap
 docker-php-ext-install opcache
 docker-php-ext-install zip
 docker-php-ext-install pcntl
