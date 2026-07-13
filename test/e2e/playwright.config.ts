@@ -11,16 +11,15 @@ export default defineConfig({
   retries: 0,
   maxFailures: 1,
   reporter: [['list']],
-  outputDir: `${artifactDir}/playwright/test-results`,
   globalTeardown: './globalTeardown.ts',
   timeout: 120_000,
   expect: { timeout: 30_000 },
   use: {
     baseURL: `https://${appDomain}`,
     ignoreHTTPSErrors: true,
-    trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-    video: 'on',
+    trace: 'off',
+    screenshot: 'off',
+    video: 'off',
   },
   projects: [
     {

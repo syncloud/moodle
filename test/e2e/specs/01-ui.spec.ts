@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test'
-import { shoot } from '../helpers/screenshot'
+import * as path from 'node:path'
+import { shoot, screenshotDir } from '../helpers/screenshot'
 import { adminPassword } from '../helpers/auth'
 import { clickThroughTour } from '../helpers/nav'
 
@@ -16,12 +17,20 @@ test.describe.serial('moodle', () => {
     await page.close()
   })
 
-  test('login', async ({}, testInfo) => {
+  test.afterEach(async ({}, testInfo) => {
+    if (testInfo.status !== testInfo.expectedStatus) {
+      await page
+        .screenshot({ path: path.join(screenshotDir(), `${testInfo.title}-error.png`) })
+        .catch(() => {})
+    }
+  })
+
+  test('login', async () => {
     await page.goto('/')
-    await shoot(page, testInfo, 'frontpage-guest')
+    await shoot(page, 'frontpage-guest')
     await page.getByRole('link', { name: 'Log in' }).first().click()
     await expect(page.locator('#loginbtn')).toBeVisible()
-    await shoot(page, testInfo, 'login')
+    await shoot(page, 'login')
     await page.locator('#username').fill(username)
     await page.locator('#password').fill(adminPassword())
     await page.locator('#loginbtn').click()
@@ -29,52 +38,52 @@ test.describe.serial('moodle', () => {
     await expect(page.locator('#page')).toBeVisible()
   })
 
-  test('tour', async ({}, testInfo) => {
+  test('tour', async () => {
     await expect(page.locator('[data-role="flexitour-step"]')).toBeVisible()
-    await shoot(page, testInfo, 'tour')
+    await shoot(page, 'tour')
     await clickThroughTour(page)
   })
 
-  test('dashboard', async ({}, testInfo) => {
+  test('dashboard', async () => {
     await page.getByRole('link', { name: 'Dashboard' }).click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, testInfo, 'dashboard')
+    await shoot(page, 'dashboard')
   })
 
-  test('site-home', async ({}, testInfo) => {
+  test('site-home', async () => {
     await page.getByRole('link', { name: 'Home' }).first().click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, testInfo, 'site-home')
+    await shoot(page, 'site-home')
   })
 
-  test('site-administration', async ({}, testInfo) => {
+  test('site-administration', async () => {
     await page.getByRole('link', { name: 'Site administration' }).click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toContainText('Site administration')
-    await shoot(page, testInfo, 'site-administration')
+    await shoot(page, 'site-administration')
   })
 
-  test('users', async ({}, testInfo) => {
+  test('users', async () => {
     await page.getByRole('link', { name: 'Users', exact: true }).first().click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, testInfo, 'users')
+    await shoot(page, 'users')
   })
 
-  test('courses', async ({}, testInfo) => {
+  test('courses', async () => {
     await page.getByRole('link', { name: 'Courses', exact: true }).first().click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, testInfo, 'courses')
+    await shoot(page, 'courses')
   })
 
-  test('preferences', async ({}, testInfo) => {
+  test('preferences', async () => {
     await page.locator('#user-menu-toggle').click()
     await page.getByRole('link', { name: 'Preferences' }).click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, testInfo, 'preferences')
+    await shoot(page, 'preferences')
   })
 })

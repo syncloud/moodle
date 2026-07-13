@@ -1,13 +1,15 @@
-import { Page, TestInfo } from '@playwright/test'
+import { Page } from '@playwright/test'
 import * as path from 'node:path'
 import * as fs from 'node:fs'
 
 const artifactRoot = process.env.PLAYWRIGHT_ARTIFACT_DIR!
 
-export async function shoot(page: Page, testInfo: TestInfo, name: string) {
-  const view = testInfo.project.name
-  const dir = path.join(artifactRoot, 'playwright', view, 'screenshot')
+export function screenshotDir(): string {
+  const dir = path.join(artifactRoot, 'screenshots')
   fs.mkdirSync(dir, { recursive: true })
-  await page.screenshot({ path: path.join(dir, `${name}-${view}.png`), fullPage: false })
-  fs.writeFileSync(path.join(dir, `${name}-${view}.html`), await page.content())
+  return dir
+}
+
+export async function shoot(page: Page, name: string) {
+  await page.screenshot({ path: path.join(screenshotDir(), `${name}.png`), fullPage: false })
 }
