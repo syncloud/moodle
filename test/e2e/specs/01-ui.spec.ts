@@ -63,12 +63,8 @@ test.describe.serial('moodle', () => {
   })
 
   test('site-administration', async () => {
-    const link = page.locator('.primary-navigation a', { hasText: 'Site administration' }).first()
-    if (!(await link.isVisible().catch(() => false))) {
-      test.skip(true, 'user is not a site admin')
-    }
-    await link.click()
-    await page.waitForLoadState('networkidle')
+    // the syncloud-group user must be a Moodle site admin
+    await primaryNav(page, 'Site administration')
     await expect(page.locator('#page')).toContainText('Site administration')
     await shoot(page, 'site-administration')
   })
