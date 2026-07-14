@@ -54,12 +54,10 @@ def test_activate_device(device):
 
 # TEMPORARY: install the platform snap from branch build syncloud/platform#2994
 # (id_token claims policy) until that change is released. Remove once merged.
-def test_platform_branch(device):
-    device.run_ssh(
-        'ARCH=$(dpkg --print-architecture); '
-        'wget -q -O /tmp/platform.snap '
-        'http://192.168.1.101:8081/files/platform/2994-$ARCH/platform_2994_$ARCH.snap && '
-        'snap install --devmode /tmp/platform.snap')
+def test_platform_branch(device, arch):
+    url = 'http://192.168.1.101:8081/files/platform/2994-{0}/platform_2994_{0}.snap'.format(arch)
+    device.run_ssh('wget -O /tmp/platform.snap ' + url)
+    device.run_ssh('snap install --devmode /tmp/platform.snap')
     device.run_ssh('sleep 30')
 
 
