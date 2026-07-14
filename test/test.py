@@ -1,5 +1,4 @@
 import os
-import time
 from os.path import dirname, join
 from subprocess import check_output
 
@@ -52,8 +51,6 @@ def test_activate_device(device):
     assert response.status_code == 200, response.text
 
 
-# TEMPORARY: install the platform snap from branch build syncloud/platform#2994
-# (id_token claims policy) until that change is released. Remove once merged.
 def test_platform_branch(device, arch):
     url = 'http://192.168.1.101:8081/files/platform/2994-{0}/platform_2994_{0}.snap'.format(arch)
     device.run_ssh('wget -O /tmp/platform.snap ' + url)
@@ -66,15 +63,10 @@ def test_install(device_session, app_archive_path, device_host, device_password,
     wait_for_installer(device_session, domain)
 
 
+@pytest.mark.flaky(retries=30, delay=2)
 def test_index(app_domain):
-    last = None
-    for _ in range(60):
-        r = requests.get('https://{0}/login/index.php'.format(app_domain), verify=False, timeout=30)
-        last = r.status_code
-        if r.status_code == 200:
-            return
-        time.sleep(2)
-    assert False, 'moodle login page not available, last status {0}'.format(last)
+    response = requests.get('https://{0}/'.format(app_domain), verify=False, timeout=30)
+    assert response.status_code == 200, response.text
 
 
 def test_storage_change_event(device):

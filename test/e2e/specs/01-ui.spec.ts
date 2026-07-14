@@ -63,7 +63,6 @@ test.describe.serial('moodle', () => {
   })
 
   test('site-administration', async () => {
-    // the syncloud-group user must be a Moodle site admin
     await primaryNav(page, 'Site administration')
     await expect(page.locator('#page')).toContainText('Site administration')
     await shoot(page, 'site-administration')
