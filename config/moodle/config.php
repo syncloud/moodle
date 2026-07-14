@@ -24,6 +24,7 @@ $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 02777;
 $CFG->sslproxy  = true;
+$CFG->curlsecurityblockedhosts = '';
 
 $CFG->debug = 32767;
 $CFG->debugdisplay = 1;
