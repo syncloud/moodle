@@ -17,12 +17,22 @@ class observer {
 
         $isadmin = in_array(self::ADMIN_GROUP, self::groups($user), true);
 
-        $admins = array_filter(array_map('trim', explode(',', (string)$CFG->siteadmins)));
-        $admins = array_values(array_diff($admins, [(string)$userid]));
-        if ($isadmin) {
-            $admins[] = (string)$userid;
+        $id = (string)$userid;
+        $current = array_values(array_filter(array_map('trim', explode(',', (string)$CFG->siteadmins))));
+        $present = in_array($id, $current, true);
+
+        if ($isadmin && !$present) {
+            $updated = array_merge($current, [$id]);
+        } else if (!$isadmin && $present) {
+            $updated = array_values(array_diff($current, [$id]));
+        } else {
+            return;
         }
-        set_config('siteadmins', implode(',', $admins));
+
+        $old = implode(',', $current);
+        $new = implode(',', $updated);
+        set_config('siteadmins', $new);
+        add_to_config_log('siteadmins', $old, $new, null);
     }
 
     private static function groups(\stdClass $user): array {
