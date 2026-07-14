@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
 import { adminPassword } from '../helpers/auth'
-import { clickThroughTour, primaryNav, secondaryNav } from '../helpers/nav'
+import { clickThroughTour, primaryNav, clickHref } from '../helpers/nav'
 
 const username = 'admin'
 
@@ -63,21 +63,20 @@ test.describe.serial('moodle', () => {
   })
 
   test('users', async () => {
-    await secondaryNav(page, /^Users$/)
+    await clickHref(page, '/admin/category.php?category=users')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'users')
   })
 
   test('courses', async () => {
-    await secondaryNav(page, /^Courses$/)
+    await clickHref(page, '/admin/category.php?category=courses')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'courses')
   })
 
   test('preferences', async () => {
     await page.locator('#user-menu-toggle').click()
-    await page.locator('a[href*="/user/preferences.php"]').first().click()
-    await page.waitForLoadState('networkidle')
+    await clickHref(page, '/user/preferences.php')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'preferences')
   })

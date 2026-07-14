@@ -27,7 +27,7 @@ export async function primaryNav(page: Page, name: string) {
   await page.waitForLoadState('networkidle')
 }
 
-export async function secondaryNav(page: Page, name: RegExp) {
-  await page.locator('.secondary-navigation a', { hasText: name }).first().click()
+export async function clickHref(page: Page, hrefFragment: string) {
+  await page.locator(`a[href*="${hrefFragment}"]`).first().click()
   await page.waitForLoadState('networkidle')
 }
