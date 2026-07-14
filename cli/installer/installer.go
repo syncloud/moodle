@@ -183,6 +183,7 @@ func (i *Installer) configureOidc() error {
 		{"--component=auth_oidc", "--name=loginflow", "--set=authcode"},
 		{"--component=auth_oidc", "--name=opname", "--set=Syncloud"},
 		{"--component=auth_oidc", "--name=icon", "--set=moodle:t/user"},
+		{"--component=auth_oidc", "--name=forceredirect", "--set=1"},
 		{"--name=auth", "--set=oidc"},
 	}
 	for _, c := range cmds {

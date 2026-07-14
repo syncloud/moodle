@@ -30,7 +30,7 @@ test.describe.serial('moodle', () => {
     await page.goto('/')
     await shoot(page, 'frontpage-guest')
     await page.getByRole('link', { name: 'Log in' }).first().click()
-    await expect(page.getByRole('link', { name: 'Syncloud' })).toBeVisible()
+    await page.waitForURL((url) => url.host.startsWith('auth.'), { timeout: 60_000 })
     await shoot(page, 'login')
     await loginViaOidc(page, username, password)
     await completeProfileIfNeeded(page)
