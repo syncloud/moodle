@@ -6,6 +6,8 @@ cd ${DIR}
 BUILD_DIR=${DIR}/../build/snap/mariadb
 mkdir -p ${BUILD_DIR}
 
+apk add --no-cache mariadb mariadb-client
+
 cp -r /usr ${BUILD_DIR}
 cp -r /lib ${BUILD_DIR}
 

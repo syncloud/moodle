@@ -6,7 +6,7 @@ local store_publisher = 'stable-303';
 local go = '1.25';
 local nginx = '1.29.3-alpine3.22';
 local php = '8.3.9-fpm-bullseye';
-local mariadb = '11.4.12';
+local mariadb = 'alpine:3.20';
 local debian = 'bookworm-slim';
 local python = '3.12-slim-bookworm';
 local playwright = 'v1.48.2-jammy';
@@ -56,7 +56,7 @@ local build(arch, test_ui) = [{
     ] + [
         {
             name: 'mariadb',
-            image: 'linuxserver/mariadb:' + mariadb,
+            image: mariadb,
             commands: ['./mariadb/build.sh'],
         },
     ] + [
