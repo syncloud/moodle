@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
 import { adminPassword } from '../helpers/auth'
-import { clickThroughTour, primaryNav, clickHref } from '../helpers/nav'
+import { clickThroughTour, primaryNav } from '../helpers/nav'
 
 const username = 'admin'
 
@@ -59,24 +59,33 @@ test.describe.serial('moodle', () => {
   test('site-administration', async () => {
     await primaryNav(page, 'Site administration')
     await expect(page.locator('#page')).toContainText('Site administration')
+    const tabs = await page.$$eval('a', (els) =>
+      els
+        .map((e) => ({ t: (e.textContent || '').trim(), h: e.getAttribute('href') }))
+        .filter((x) => /^(Users|Courses)$/.test(x.t)),
+    )
+    console.log('ADMIN_TABS ' + JSON.stringify(tabs))
     await shoot(page, 'site-administration')
   })
 
   test('users', async () => {
-    await clickHref(page, '/admin/category.php?category=users')
+    await page.getByRole('link', { name: 'Users', exact: true }).first().click()
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'users')
   })
 
   test('courses', async () => {
-    await clickHref(page, '/admin/category.php?category=courses')
+    await page.getByRole('link', { name: 'Courses', exact: true }).first().click()
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'courses')
   })
 
   test('preferences', async () => {
     await page.locator('#user-menu-toggle').click()
-    await clickHref(page, '/user/preferences.php')
+    await page.getByRole('link', { name: 'Preferences' }).first().click()
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'preferences')
   })
