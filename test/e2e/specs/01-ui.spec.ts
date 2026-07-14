@@ -75,4 +75,52 @@ test.describe.serial('moodle', () => {
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'preferences')
   })
+
+  let courseId = ''
+
+  test('create-course', async () => {
+    await page.goto('/course/edit.php?category=1')
+    await page.locator('#id_fullname').fill('Demo course')
+    await page.locator('#id_shortname').fill('demo')
+    await page.locator('#id_saveanddisplay').click()
+    await page.waitForLoadState('networkidle')
+    courseId = new URL(page.url()).searchParams.get('id') || ''
+    expect(courseId).not.toEqual('')
+    await shoot(page, 'course-created')
+  })
+
+  test('create-student', async () => {
+    await page.goto('/user/editadvanced.php?id=-1')
+    await page.locator('#id_username').fill('student')
+    await page.locator('#id_newpassword').fill('Student1!syncloud')
+    await page.locator('#id_firstname').fill('Demo')
+    await page.locator('#id_lastname').fill('Student')
+    await page.locator('#id_email').fill('student@example.com')
+    await page.locator('#id_submitbutton').click()
+    await page.waitForLoadState('networkidle')
+    await shoot(page, 'student-created')
+  })
+
+  test('enrol-student', async () => {
+    await page.goto('/user/index.php?id=' + courseId)
+    await page.getByRole('button', { name: 'Enrol users' }).first().click()
+    const modal = page.locator('.modal-content').last()
+    await modal.locator('input[type="text"]').first().fill('Demo Student')
+    await page.locator('.form-autocomplete-suggestions [role="option"]').first().click()
+    await modal.getByRole('button', { name: 'Enrol users' }).click()
+    await page.waitForLoadState('networkidle')
+    await expect(page.locator('#page')).toContainText('Demo Student')
+    await shoot(page, 'student-enrolled')
+  })
+
+  test('student-view', async () => {
+    await page.locator('a', { hasText: 'Demo Student' }).first().click()
+    await page.waitForLoadState('networkidle')
+    await page.getByRole('link', { name: 'Log in as' }).first().click()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.waitForLoadState('networkidle')
+    await page.goto('/course/view.php?id=' + courseId)
+    await expect(page.locator('#page')).toContainText('Demo course')
+    await shoot(page, 'student-course-view')
+  })
 })
