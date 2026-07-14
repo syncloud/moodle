@@ -1,6 +1,6 @@
 name: moodle
 summary: Moodle
-description: Open-source learning management system for online courses and training
+description: Learning management system for online courses and training
 grade: stable
 
 apps:
