@@ -167,7 +167,7 @@ func (i *Installer) configureOidc() error {
 		return err
 	}
 
-	secret, err := i.platformClient.RegisterOIDCClient(App, "/auth/oidc/", false, "client_secret_basic")
+	secret, err := i.platformClient.RegisterOIDCClient(App, "/auth/oidc/", false, "client_secret_post")
 	if err != nil {
 		return err
 	}

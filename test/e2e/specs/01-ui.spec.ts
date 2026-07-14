@@ -33,7 +33,7 @@ test.describe.serial('moodle', () => {
     await expect(page.getByRole('link', { name: 'Syncloud' })).toBeVisible()
     await shoot(page, 'login')
     await loginViaOidc(page, username, password)
-    await expect(page.locator('#page')).toBeVisible()
+    await expect(page.locator('#user-menu-toggle')).toBeVisible()
   })
 
   test('tour', async () => {
