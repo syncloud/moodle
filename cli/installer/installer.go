@@ -179,10 +179,11 @@ func (i *Installer) configureOidc() error {
 		{"--component=auth_oidc", "--name=clientsecret", "--set=" + secret},
 		{"--component=auth_oidc", "--name=authendpoint", "--set=" + authUrl + "/api/oidc/authorization"},
 		{"--component=auth_oidc", "--name=tokenendpoint", "--set=" + authUrl + "/api/oidc/token"},
-		{"--component=auth_oidc", "--name=oidcscope", "--set=openid profile email"},
+		{"--component=auth_oidc", "--name=oidcscope", "--set=openid profile email groups"},
 		{"--component=auth_oidc", "--name=loginflow", "--set=authcode"},
 		{"--component=auth_oidc", "--name=opname", "--set=Syncloud"},
-		{"--name=auth", "--set=oidc,manual"},
+		{"--component=auth_oidc", "--name=icon", "--set=moodle:t/user"},
+		{"--name=auth", "--set=oidc"},
 	}
 	for _, c := range cmds {
 		args := append([]string{"admin/cli/cfg.php"}, c...)

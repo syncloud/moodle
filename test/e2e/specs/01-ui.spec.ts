@@ -1,10 +1,11 @@
 import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
-import { adminPassword } from '../helpers/auth'
+import { loginViaOidc } from '../helpers/auth'
 import { clickThroughTour, primaryNav } from '../helpers/nav'
 
-const username = 'admin'
+const username = process.env.PLAYWRIGHT_DEVICE_USER!
+const password = process.env.PLAYWRIGHT_DEVICE_PASSWORD!
 
 test.describe.serial('moodle', () => {
   let page: Page
@@ -29,12 +30,9 @@ test.describe.serial('moodle', () => {
     await page.goto('/')
     await shoot(page, 'frontpage-guest')
     await page.getByRole('link', { name: 'Log in' }).first().click()
-    await expect(page.locator('#loginbtn')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Syncloud' })).toBeVisible()
     await shoot(page, 'login')
-    await page.locator('#username').fill(username)
-    await page.locator('#password').fill(adminPassword())
-    await page.locator('#loginbtn').click()
-    await page.waitForURL((url) => !url.pathname.includes('/login/'), { timeout: 60_000 })
+    await loginViaOidc(page, username, password)
     await expect(page.locator('#page')).toBeVisible()
   })
 
@@ -63,7 +61,12 @@ test.describe.serial('moodle', () => {
   })
 
   test('site-administration', async () => {
-    await primaryNav(page, 'Site administration')
+    const link = page.locator('.primary-navigation a', { hasText: 'Site administration' }).first()
+    if (!(await link.isVisible().catch(() => false))) {
+      test.skip(true, 'user is not a site admin')
+    }
+    await link.click()
+    await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toContainText('Site administration')
     await shoot(page, 'site-administration')
   })

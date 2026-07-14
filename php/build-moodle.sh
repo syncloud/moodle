@@ -21,4 +21,6 @@ wget https://github.com/microsoft/moodle-auth_oidc/archive/refs/tags/v${AUTH_OID
 tar xf auth_oidc.tar.gz
 mv moodle-auth_oidc-${AUTH_OIDC_VERSION} ${BUILD_DIR}/moodle/auth/oidc
 
+cp -r ${DIR}/local-syncloud ${BUILD_DIR}/moodle/local/syncloud
+
 cp ${DIR}/config.php ${BUILD_DIR}/moodle/config.php
