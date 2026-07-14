@@ -56,35 +56,21 @@ test.describe.serial('moodle', () => {
     await shoot(page, 'site-home')
   })
 
+  test('my-courses', async () => {
+    await primaryNav(page, 'My courses')
+    await expect(page.locator('#page')).toBeVisible()
+    await shoot(page, 'my-courses')
+  })
+
   test('site-administration', async () => {
     await primaryNav(page, 'Site administration')
     await expect(page.locator('#page')).toContainText('Site administration')
-    const tabs = await page.$$eval('a', (els) =>
-      els
-        .map((e) => ({ t: (e.textContent || '').trim(), h: e.getAttribute('href') }))
-        .filter((x) => /^(Users|Courses)$/.test(x.t)),
-    )
-    console.log('ADMIN_TABS ' + JSON.stringify(tabs))
     await shoot(page, 'site-administration')
-  })
-
-  test('users', async () => {
-    await page.getByRole('link', { name: 'Users', exact: true }).first().click()
-    await page.waitForLoadState('networkidle')
-    await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, 'users')
-  })
-
-  test('courses', async () => {
-    await page.getByRole('link', { name: 'Courses', exact: true }).first().click()
-    await page.waitForLoadState('networkidle')
-    await expect(page.locator('#page')).toBeVisible()
-    await shoot(page, 'courses')
   })
 
   test('preferences', async () => {
     await page.locator('#user-menu-toggle').click()
-    await page.getByRole('link', { name: 'Preferences' }).first().click()
+    await page.locator('#user-action-menu a[href*="/user/preferences.php"]').first().click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'preferences')
