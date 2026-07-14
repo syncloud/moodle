@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
 import { adminPassword } from '../helpers/auth'
-import { clickThroughTour } from '../helpers/nav'
+import { clickThroughTour, primaryNav, secondaryNav } from '../helpers/nav'
 
 const username = 'admin'
 
@@ -45,43 +45,38 @@ test.describe.serial('moodle', () => {
   })
 
   test('dashboard', async () => {
-    await page.getByRole('link', { name: 'Dashboard' }).click()
-    await page.waitForLoadState('networkidle')
+    await primaryNav(page, 'Dashboard')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'dashboard')
   })
 
   test('site-home', async () => {
-    await page.getByRole('link', { name: 'Home' }).first().click()
-    await page.waitForLoadState('networkidle')
+    await primaryNav(page, 'Home')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'site-home')
   })
 
   test('site-administration', async () => {
-    await page.getByRole('link', { name: 'Site administration' }).click()
-    await page.waitForLoadState('networkidle')
+    await primaryNav(page, 'Site administration')
     await expect(page.locator('#page')).toContainText('Site administration')
     await shoot(page, 'site-administration')
   })
 
   test('users', async () => {
-    await page.getByRole('link', { name: 'Users', exact: true }).first().click()
-    await page.waitForLoadState('networkidle')
+    await secondaryNav(page, /^Users$/)
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'users')
   })
 
   test('courses', async () => {
-    await page.getByRole('link', { name: 'Courses', exact: true }).first().click()
-    await page.waitForLoadState('networkidle')
+    await secondaryNav(page, /^Courses$/)
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'courses')
   })
 
   test('preferences', async () => {
     await page.locator('#user-menu-toggle').click()
-    await page.getByRole('link', { name: 'Preferences' }).click()
+    await page.locator('a[href*="/user/preferences.php"]').first().click()
     await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toBeVisible()
     await shoot(page, 'preferences')
