@@ -92,6 +92,7 @@ test.describe.serial('moodle', () => {
   test('create-student', async () => {
     await page.goto('/user/editadvanced.php?id=-1')
     await page.locator('#id_username').fill('student')
+    await page.getByText('Click to enter text').first().click()
     await page.locator('#id_newpassword').fill('Student1!syncloud')
     await page.locator('#id_firstname').fill('Demo')
     await page.locator('#id_lastname').fill('Student')
