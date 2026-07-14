@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
-import { loginViaOidc } from '../helpers/auth'
+import { loginViaOidc, completeProfileIfNeeded } from '../helpers/auth'
 import { clickThroughTour, primaryNav } from '../helpers/nav'
 
 const username = process.env.PLAYWRIGHT_DEVICE_USER!
@@ -33,10 +33,12 @@ test.describe.serial('moodle', () => {
     await expect(page.getByRole('link', { name: 'Syncloud' })).toBeVisible()
     await shoot(page, 'login')
     await loginViaOidc(page, username, password)
+    await completeProfileIfNeeded(page)
     await expect(page.locator('#user-menu-toggle')).toBeVisible()
   })
 
   test('tour', async () => {
+    await primaryNav(page, 'Dashboard')
     await expect(page.locator('[data-role="flexitour-step"]')).toBeVisible()
     await shoot(page, 'tour')
     await clickThroughTour(page)
