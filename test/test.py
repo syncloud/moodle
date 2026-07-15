@@ -51,11 +51,8 @@ def test_activate_device(device):
     assert response.status_code == 200, response.text
 
 
-def test_platform_branch(device, arch):
-    dpkg = 'armhf' if arch == 'arm' else arch
-    url = 'http://192.168.1.101:8081/files/platform/2994-{0}/platform_2994_{1}.snap'.format(arch, dpkg)
-    device.run_ssh('wget -O /tmp/platform.snap ' + url)
-    device.run_ssh('snap install --devmode /tmp/platform.snap')
+def test_refresh_platform(device):
+    device.run_ssh('snap refresh platform --channel=master')
     device.run_ssh('sleep 30')
 
 
