@@ -51,11 +51,6 @@ def test_activate_device(device):
     assert response.status_code == 200, response.text
 
 
-def test_refresh_platform(device):
-    device.run_ssh('snap refresh platform --channel=stable')
-    device.run_ssh('sleep 30')
-
-
 def test_install(device_session, app_archive_path, device_host, device_password, domain):
     local_install(device_host, device_password, app_archive_path)
     wait_for_installer(device_session, domain)

@@ -1,7 +1,7 @@
 local name = 'moodle';
 local version = '4.5.12';
 local auth_oidc = '4.5.7';
-local platform = '26.04.10';
+local platform = '26.07.01';
 local store_publisher = 'stable-303';
 local go = '1.25';
 local nginx = '1.29.3-alpine3.22';
@@ -13,8 +13,8 @@ local playwright = 'v1.48.2-jammy';
 local distro_default = 'bookworm';
 local distros = ['bookworm', 'buster'];
 
-local platform_image(distro, arch) =
-    'syncloud/platform-' + distro + '-' + arch + ':' + platform;
+local platform_image(distro) =
+    'syncloud/platform-' + distro + ':' + platform;
 
 local build(arch, test_ui) = [{
     kind: 'pipeline',
@@ -33,7 +33,7 @@ local build(arch, test_ui) = [{
     ] + [
         {
             name: 'nginx test ' + distro,
-            image: platform_image(distro, arch),
+            image: platform_image(distro),
             commands: ['./nginx/test.sh'],
         }
         for distro in distros
@@ -49,7 +49,7 @@ local build(arch, test_ui) = [{
     ] + [
         {
             name: 'php test ' + distro,
-            image: platform_image(distro, arch),
+            image: platform_image(distro),
             commands: ['./php/test.sh'],
         }
         for distro in distros
@@ -62,7 +62,7 @@ local build(arch, test_ui) = [{
     ] + [
         {
             name: 'mariadb test ' + distro,
-            image: platform_image(distro, arch),
+            image: platform_image(distro),
             commands: ['./mariadb/test.sh'],
         }
         for distro in distros
@@ -128,7 +128,7 @@ local build(arch, test_ui) = [{
     services: [
         {
             name: name + '.' + distro + '.com',
-            image: platform_image(distro, arch),
+            image: platform_image(distro),
             privileged: true,
             entrypoint: ['/bin/sh', '-c', "mkdir -p /etc/systemd/system/snapd.service.d && printf '[Service]\\nExecStartPost=/bin/sh -c \"/usr/bin/snap set system refresh.hold=2099-01-01T00:00:00Z\"\\n' > /etc/systemd/system/snapd.service.d/disable-refresh.conf && exec /sbin/init"],
             volumes: [
