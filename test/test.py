@@ -52,7 +52,7 @@ def test_activate_device(device):
 
 
 def test_refresh_platform(device):
-    device.run_ssh('snap refresh platform --channel=master')
+    device.run_ssh('snap refresh platform --channel=stable')
     device.run_ssh('sleep 30')
 
 
