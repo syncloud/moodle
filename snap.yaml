@@ -1,0 +1,58 @@
+name: moodle
+summary: Moodle
+description: Learning management system for online courses and training
+grade: stable
+
+apps:
+  mariadb:
+    command: bin/service.mariadb.sh
+    user: moodle
+    daemon: simple
+    restart-condition: always
+    start-timeout: 600s
+    restart-delay: 10s
+
+  php-fpm:
+    command: bin/service.php-fpm.sh
+    user: moodle
+    daemon: forking
+    restart-condition: always
+    start-timeout: 600s
+    restart-delay: 10s
+
+  nginx:
+    command: bin/service.nginx.sh
+    user: moodle
+    daemon: simple
+    restart-condition: always
+    start-timeout: 600s
+    restart-delay: 10s
+
+  cron:
+    command: bin/cron
+    user: moodle
+    daemon: simple
+    restart-condition: always
+    start-timeout: 600s
+    restart-delay: 10s
+
+  cli:
+    command: bin/cli
+
+  moodle-cli:
+    command: bin/moodle
+
+  storage-change:
+    command: bin/cli storage-change
+
+  access-change:
+    command: bin/cli access-change
+
+  backup-pre-stop:
+    command: bin/cli backup-pre-stop
+
+  restore-pre-start:
+    command: bin/cli restore-pre-start
+
+  restore-post-start:
+    command: bin/cli restore-post-start
