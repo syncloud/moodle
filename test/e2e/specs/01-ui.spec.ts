@@ -35,15 +35,14 @@ test.describe.serial('moodle', () => {
     await loginViaOidc(page, username, password)
     await completeProfileIfNeeded(page)
     await expect(page.locator('#user-menu-toggle')).toBeVisible()
+    await dismissTour(page)
   })
 
   test('tour', async () => {
     await primaryNav(page, 'Dashboard')
-    const step = page.locator('[data-role="flexitour-step"]')
-    await expect(step).toBeVisible()
+    await dismissTour(page)
+    await expect(page.getByRole('heading', { name: 'Dashboard', level: 1 })).toBeVisible()
     await shoot(page, 'tour')
-    await step.getByRole('button', { name: 'End tour' }).or(step.locator('[data-role="end"]')).first().click()
-    await expect(step).toBeHidden()
   })
 
   test('dashboard', async () => {
@@ -92,6 +91,7 @@ test.describe.serial('moodle', () => {
     await page.locator('#id_shortname').fill('demo')
     await page.locator('#id_saveanddisplay').click()
     await expect(page.getByRole('heading', { name: 'Demo course' })).toBeVisible()
+    await dismissTour(page)
     courseId = new URL(page.url()).searchParams.get('id') || ''
     expect(courseId).not.toEqual('')
     await shoot(page, 'course-created')
