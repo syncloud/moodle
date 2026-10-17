@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
 import { loginViaOidc, completeProfileIfNeeded } from '../helpers/auth'
-import { primaryNav, openCoursesAdmin, openUsersAdmin, openCourseManagement, searchCourse } from '../helpers/nav'
+import { primaryNav, openCoursesAdmin, openUsersAdmin, openCourseManagement, searchCourse, dismissTour } from '../helpers/nav'
 
 const username = process.env.PLAYWRIGHT_DEVICE_USER!
 const password = process.env.PLAYWRIGHT_DEVICE_PASSWORD!
@@ -105,8 +105,14 @@ test.describe.serial('moodle', () => {
     const uname = page.locator('#id_username')
     await uname.waitFor({ state: 'visible', timeout: 60_000 })
     await uname.fill('student')
-    await page.getByText('Click to enter text').first().click()
-    await page.locator('#id_newpassword').fill('Student1!syncloud')
+    const newpassword = page.locator('#id_newpassword')
+    await expect(async () => {
+      if (!(await newpassword.isVisible().catch(() => false))) {
+        await page.getByText('Click to enter text').first().click()
+      }
+      await expect(newpassword).toBeVisible({ timeout: 2_000 })
+    }).toPass({ timeout: 30_000 })
+    await newpassword.fill('Student1!syncloud')
     await page.locator('#id_firstname').fill('Demo')
     await page.locator('#id_lastname').fill('Student')
     await page.locator('#id_email').fill('student@example.com')
@@ -122,6 +128,7 @@ test.describe.serial('moodle', () => {
     const view = page.locator('a[href*="/course/view.php?id="]').first()
     await view.waitFor({ state: 'visible', timeout: 60_000 })
     await view.click()
+    await dismissTour(page)
     const participants = page.locator('a[href*="/user/index.php?id="]').first()
     await participants.waitFor({ state: 'visible', timeout: 60_000 })
     await participants.click()
@@ -148,6 +155,7 @@ test.describe.serial('moodle', () => {
     await loginAs.waitFor({ state: 'visible', timeout: 60_000 })
     await loginAs.click()
     await page.getByRole('button', { name: 'Continue' }).click()
+    await dismissTour(page)
     await primaryNav(page, 'My courses')
     const course = page.getByRole('link', { name: 'Demo course' }).first()
     await course.waitFor({ state: 'visible', timeout: 60_000 })
