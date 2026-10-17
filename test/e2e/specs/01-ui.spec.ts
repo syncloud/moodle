@@ -2,7 +2,7 @@ import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
 import { loginViaOidc, completeProfileIfNeeded } from '../helpers/auth'
-import { clickThroughTour, primaryNav } from '../helpers/nav'
+import { primaryNav, openCoursesAdmin, openUsersAdmin, openCourseManagement, searchCourse } from '../helpers/nav'
 
 const username = process.env.PLAYWRIGHT_DEVICE_USER!
 const password = process.env.PLAYWRIGHT_DEVICE_PASSWORD!
@@ -30,7 +30,7 @@ test.describe.serial('moodle', () => {
     await page.goto('/')
     await shoot(page, 'frontpage-guest')
     await page.getByRole('link', { name: 'Log in' }).first().click()
-    await page.waitForURL((url) => url.host.startsWith('auth.'), { timeout: 60_000 })
+    await page.locator('input#username-textfield').waitFor({ state: 'visible', timeout: 60_000 })
     await shoot(page, 'login')
     await loginViaOidc(page, username, password)
     await completeProfileIfNeeded(page)
@@ -39,72 +39,95 @@ test.describe.serial('moodle', () => {
 
   test('tour', async () => {
     await primaryNav(page, 'Dashboard')
-    await expect(page.locator('[data-role="flexitour-step"]')).toBeVisible()
+    const step = page.locator('[data-role="flexitour-step"]')
+    await expect(step).toBeVisible()
     await shoot(page, 'tour')
-    await clickThroughTour(page)
+    await step.getByRole('button', { name: 'End tour' }).or(step.locator('[data-role="end"]')).first().click()
+    await expect(step).toBeHidden()
   })
 
   test('dashboard', async () => {
     await primaryNav(page, 'Dashboard')
-    await expect(page.locator('#page')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard', level: 1 })).toBeVisible()
     await shoot(page, 'dashboard')
   })
 
   test('site-home', async () => {
     await primaryNav(page, 'Home')
-    await expect(page.locator('#page')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Syncloud Moodle' })).toBeVisible()
     await shoot(page, 'site-home')
   })
 
   test('my-courses', async () => {
     await primaryNav(page, 'My courses')
-    await expect(page.locator('#page')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'My courses', level: 1 })).toBeVisible()
     await shoot(page, 'my-courses')
   })
 
   test('site-administration', async () => {
     await primaryNav(page, 'Site administration')
-    await expect(page.locator('#page')).toContainText('Site administration')
+    await expect(page.getByRole('heading', { name: 'Site administration', level: 1 })).toBeVisible()
     await shoot(page, 'site-administration')
   })
 
   test('preferences', async () => {
     await page.locator('#user-menu-toggle').click()
-    await page.locator('#user-action-menu a[href*="/user/preferences.php"]').first().click()
-    await page.waitForLoadState('networkidle')
-    await expect(page.locator('#page')).toBeVisible()
+    const pref = page.locator('#user-action-menu a[href*="/user/preferences.php"]').first()
+    await pref.waitFor({ state: 'visible', timeout: 30_000 })
+    await pref.click()
+    await expect(page.getByRole('heading', { name: 'Preferences' })).toBeVisible()
     await shoot(page, 'preferences')
   })
 
   let courseId = ''
 
   test('create-course', async () => {
-    await page.goto('/course/edit.php?category=1')
-    await page.locator('#id_fullname').fill('Demo course')
+    await openCoursesAdmin(page)
+    const add = page.getByRole('link', { name: 'Add a new course' }).first()
+    await add.waitFor({ state: 'visible', timeout: 60_000 })
+    await add.click()
+    const fullname = page.locator('#id_fullname')
+    await fullname.waitFor({ state: 'visible', timeout: 60_000 })
+    await fullname.fill('Demo course')
     await page.locator('#id_shortname').fill('demo')
     await page.locator('#id_saveanddisplay').click()
-    await page.waitForLoadState('networkidle')
+    await expect(page.getByRole('heading', { name: 'Demo course' })).toBeVisible()
     courseId = new URL(page.url()).searchParams.get('id') || ''
     expect(courseId).not.toEqual('')
     await shoot(page, 'course-created')
   })
 
   test('create-student', async () => {
-    await page.goto('/user/editadvanced.php?id=-1')
-    await page.locator('#id_username').fill('student')
+    await openUsersAdmin(page)
+    const add = page.getByRole('link', { name: 'Add a new user' }).first()
+    await add.waitFor({ state: 'visible', timeout: 60_000 })
+    await add.click()
+    const uname = page.locator('#id_username')
+    await uname.waitFor({ state: 'visible', timeout: 60_000 })
+    await uname.fill('student')
     await page.getByText('Click to enter text').first().click()
     await page.locator('#id_newpassword').fill('Student1!syncloud')
     await page.locator('#id_firstname').fill('Demo')
     await page.locator('#id_lastname').fill('Student')
     await page.locator('#id_email').fill('student@example.com')
     await page.locator('#id_submitbutton').click()
-    await page.waitForLoadState('networkidle')
+    await expect(page.locator('#page')).toContainText('Demo Student')
     await shoot(page, 'student-created')
   })
 
   test('enrol-student', async () => {
-    await page.goto('/user/index.php?id=' + courseId)
-    await page.getByRole('button', { name: 'Enrol users' }).first().click()
+    await openCourseManagement(page)
+    await searchCourse(page, 'demo')
+    await page.getByRole('link', { name: 'Demo course' }).first().click()
+    const view = page.locator('a[href*="/course/view.php?id="]').first()
+    await view.waitFor({ state: 'visible', timeout: 60_000 })
+    await view.click()
+    const participants = page.locator('a[href*="/user/index.php?id="]').first()
+    await participants.waitFor({ state: 'visible', timeout: 60_000 })
+    await participants.click()
+    const enrolBtn = page.getByRole('button', { name: 'Enrol users' }).first()
+    await enrolBtn.waitFor({ state: 'visible', timeout: 60_000 })
+    await enrolBtn.click()
     const modal = page.locator('.modal-content').last()
     const search = modal.locator('input[aria-autocomplete="list"]').first()
     await search.click()
@@ -115,19 +138,21 @@ test.describe.serial('moodle', () => {
     await expect(modal.locator('.form-autocomplete-selection')).toContainText('Demo Student')
     await shoot(page, 'enrol-modal')
     await modal.getByRole('button', { name: /^Enrol users$/ }).click()
-    await page.waitForLoadState('networkidle')
     await expect(page.locator('#page')).toContainText('Demo Student')
     await shoot(page, 'student-enrolled')
   })
 
   test('student-view', async () => {
     await page.locator('a', { hasText: 'Demo Student' }).first().click()
-    await page.waitForLoadState('networkidle')
-    await page.getByRole('link', { name: 'Log in as' }).first().click()
+    const loginAs = page.getByRole('link', { name: 'Log in as' }).first()
+    await loginAs.waitFor({ state: 'visible', timeout: 60_000 })
+    await loginAs.click()
     await page.getByRole('button', { name: 'Continue' }).click()
-    await page.waitForLoadState('networkidle')
-    await page.goto('/course/view.php?id=' + courseId)
-    await expect(page.locator('#page')).toContainText('Demo course')
+    await primaryNav(page, 'My courses')
+    const course = page.getByRole('link', { name: 'Demo course' }).first()
+    await course.waitFor({ state: 'visible', timeout: 60_000 })
+    await course.click()
+    await expect(page.getByRole('heading', { name: 'Demo course' })).toBeVisible()
     await shoot(page, 'student-course-view')
   })
 })

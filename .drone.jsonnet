@@ -5,7 +5,7 @@ local platform = '26.07.01';
 local store_publisher = 'stable-346';
 local go = '1.25';
 local nginx = '1.29.3-alpine3.22';
-local php = '8.3.9-fpm-bullseye';
+local php = '8.3.9-fpm-bookworm';
 local mariadb = 'alpine:3.20';
 local debian = 'bookworm-slim';
 local python = '3.12-slim-bookworm';
@@ -81,14 +81,34 @@ local build(arch, test_ui) = [{
         {
             name: 'test ' + distro,
             image: 'python:' + python,
-            commands: ['./test/ci-test.sh ' + distro + ' ' + arch],
+            commands: ['./test/ci-test.sh test.py ' + distro + ' ' + arch],
         }
         for distro in distros
     ] + (if test_ui then [
         {
-            name: 'test-ui-desktop',
+            name: 'e2e',
             image: 'mcr.microsoft.com/playwright:' + playwright,
-            commands: ['./test/e2e/run.sh e2e-desktop desktop'],
+            commands: ['./test/e2e/run.sh e2e specs/01-ui.spec.ts'],
+        },
+        {
+            name: 'test-upgrade-prev',
+            image: 'python:' + python,
+            commands: ['./test/ci-test.sh upgrade_prev.py ' + distro_default + ' ' + arch],
+        },
+        {
+            name: 'e2e-before-upgrade',
+            image: 'mcr.microsoft.com/playwright:' + playwright,
+            commands: ['./test/e2e/run.sh e2e-before-upgrade specs/02-pre-upgrade.spec.ts'],
+        },
+        {
+            name: 'test-upgrade',
+            image: 'python:' + python,
+            commands: ['./test/ci-test.sh upgrade.py ' + distro_default + ' ' + arch],
+        },
+        {
+            name: 'e2e-after-upgrade',
+            image: 'mcr.microsoft.com/playwright:' + playwright,
+            commands: ['./test/e2e/run.sh e2e-after-upgrade specs/03-post-upgrade.spec.ts'],
         },
     ] else []) + [
         {
