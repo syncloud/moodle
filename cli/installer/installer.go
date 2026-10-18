@@ -34,6 +34,7 @@ type Installer struct {
 	database           *Database
 	installFile        string
 	adminPasswordFile  string
+	dbRestoreFile      string
 	appDir             string
 	dataDir            string
 	commonDir          string
@@ -55,6 +56,7 @@ func New(logger *zap.Logger) *Installer {
 		database:           NewDatabase(App, appDir, dataDir, configDir, App, executor, logger),
 		installFile:        path.Join(dataDir, "installed"),
 		adminPasswordFile:  path.Join(dataDir, ".admin_password"),
+		dbRestoreFile:      path.Join(dataDir, "db.restore"),
 		appDir:             appDir,
 		dataDir:            dataDir,
 		commonDir:          commonDir,
@@ -99,6 +101,10 @@ func (i *Installer) Configure() error {
 	}
 
 	if i.IsInstalled() {
+		err = i.restoreDatabaseIfNeeded()
+		if err != nil {
+			return err
+		}
 		err = i.Upgrade()
 	} else {
 		err = i.Initialize()
@@ -226,11 +232,40 @@ func (i *Installer) PostRefresh() error {
 	if err != nil {
 		return err
 	}
+	if i.IsInstalled() {
+		err = i.database.Remove()
+		if err != nil {
+			return err
+		}
+		err = i.database.Init()
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(i.dbRestoreFile, []byte("restore"), 0644)
+		if err != nil {
+			return err
+		}
+	}
 	err = i.ClearVersion()
 	if err != nil {
 		return err
 	}
 	return i.FixPermissions()
+}
+
+func (i *Installer) restoreDatabaseIfNeeded() error {
+	if _, err := os.Stat(i.dbRestoreFile); err != nil {
+		return nil
+	}
+	err := i.database.createDb()
+	if err != nil {
+		return err
+	}
+	err = i.database.Restore()
+	if err != nil {
+		return err
+	}
+	return os.Remove(i.dbRestoreFile)
 }
 
 func (i *Installer) StorageChange() error {

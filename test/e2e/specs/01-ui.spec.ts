@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test'
 import * as path from 'node:path'
 import { shoot, screenshotDir } from '../helpers/screenshot'
-import { loginViaOidc, completeProfileIfNeeded } from '../helpers/auth'
+import { loginViaOidc, completeProfileIfNeeded, ensureAdminNav } from '../helpers/auth'
 import { primaryNav, openCoursesAdmin, openUsersAdmin, openCourseManagement, searchCourse, dismissTour } from '../helpers/nav'
 
 const username = process.env.PLAYWRIGHT_DEVICE_USER!
@@ -29,13 +29,11 @@ test.describe.serial('moodle', () => {
   test('login', async () => {
     await page.goto('/')
     await shoot(page, 'frontpage-guest')
-    await page.getByRole('link', { name: 'Log in' }).first().click()
-    await page.locator('input#username-textfield').waitFor({ state: 'visible', timeout: 60_000 })
-    await shoot(page, 'login')
     await loginViaOidc(page, username, password)
     await completeProfileIfNeeded(page)
     await expect(page.locator('#user-menu-toggle')).toBeVisible()
     await dismissTour(page)
+    await ensureAdminNav(page)
   })
 
   test('tour', async () => {

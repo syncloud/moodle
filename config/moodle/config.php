@@ -22,6 +22,9 @@ $CFG->dataroot  = '{{ .DataRoot }}';
 $CFG->tempdir   = getenv('SNAP_DATA') . '/temp';
 $CFG->admin     = 'admin';
 
+$CFG->enablemyhome = 1;
+$CFG->enablemycourses = 1;
+
 $CFG->directorypermissions = 02777;
 $CFG->sslproxy  = true;
 $CFG->curlsecurityblockedhosts = '';

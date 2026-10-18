@@ -19,8 +19,8 @@ mv moodle-${MOODLE_VERSION} ${BUILD_DIR}/moodle
 
 wget https://github.com/microsoft/moodle-auth_oidc/archive/refs/tags/v${AUTH_OIDC_VERSION}.tar.gz -O auth_oidc.tar.gz --progress dot:giga
 tar xf auth_oidc.tar.gz
-mv moodle-auth_oidc-${AUTH_OIDC_VERSION} ${BUILD_DIR}/moodle/auth/oidc
+mv moodle-auth_oidc-${AUTH_OIDC_VERSION} ${BUILD_DIR}/moodle/public/auth/oidc
 
-cp -r ${DIR}/local-syncloud ${BUILD_DIR}/moodle/local/syncloud
+cp -r ${DIR}/local-syncloud ${BUILD_DIR}/moodle/public/local/syncloud
 
 cp ${DIR}/config.php ${BUILD_DIR}/moodle/config.php
