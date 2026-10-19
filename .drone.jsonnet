@@ -26,6 +26,16 @@ local build(arch, test_ui) = [{
     },
     steps: [
         {
+            name: 'cleanup',
+            image: 'docker:27-cli',
+            volumes: [{ name: 'docker-sock', path: '/var/run/docker.sock' }],
+            commands: [
+                'docker container prune -f',
+                'docker builder prune -f',
+                'docker image prune -f',
+            ],
+        },
+        {
             name: 'nginx',
             image: 'nginx:' + nginx,
             commands: ['./nginx/build.sh'],
@@ -162,6 +172,7 @@ local build(arch, test_ui) = [{
         { name: 'dbus', host: { path: '/var/run/dbus' } },
         { name: 'dev', host: { path: '/dev' } },
         { name: 'shm', temp: {} },
+        { name: 'docker-sock', host: { path: '/var/run/docker.sock' } },
     ],
 }];
 
